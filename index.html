@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mbah Amat App - Sistem Manajemen Bimbel Profesional</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        },
+                        slate: {
+                            850: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="h-full text-slate-800 antialiased" x-data="mbahAmatApp()" x-init="initData()">
+
+    <div class="min-h-screen flex flex-col md:flex-row bg-slate-100">
+        
+        <!-- Mobile Header -->
+        <header class="bg-indigo-900 text-white flex items-center justify-between p-4 md:hidden shadow-md">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 p-2 rounded-lg text-white font-bold text-lg">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-wide">Mbah Amat App</h1>
+                    <p class="text-xs text-indigo-200">Bimbel Profesional</p>
+                </div>
+            </div>
+            <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-white focus:outline-none text-xl p-1">
+                <i :class="mobileMenuOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"></i>
+            </button>
+        </header>
+
+        <!-- Sidebar Navigation -->
+        <aside :class="mobileMenuOpen ? 'block' : 'hidden'" class="md:block w-full md:w-64 bg-indigo-900 text-slate-300 flex-shrink-0 flex flex-col justify-between shadow-xl z-20">
+            <div>
+                <!-- Logo & Brand -->
+                <div class="p-6 hidden md:flex items-center space-x-3 border-b border-indigo-800/60">
+                    <div class="bg-gradient-to-tr from-indigo-500 to-indigo-600 p-3 rounded-xl text-white shadow-lg shadow-indigo-900/50">
+                        <i class="fa-solid fa-graduation-cap text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-white text-lg tracking-wide">Mbah Amat App</h1>
+                        <p class="text-xs text-indigo-300 font-medium">Sistem Manajemen Bimbel</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-120px)]">
+                    <div class="text-xs font-semibold text-indigo-400 uppercase px-3 pb-2">Utama</div>
+                    
+                    <a href="#" @click.prevent="activeTab = 'dashboard'; mobileMenuOpen = false" 
+                       :class="activeTab === 'dashboard' ? 'bg-indigo-800 text-white shadow-md' : 'hover:bg-indigo-800/50 hover:text-white'"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium transition duration-150">
+                        <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                        <span>Dashboard</span>
+                    </a>
+
+                    <div class="pt-4 text-xs font-semibold text-indigo-400 uppercase px-3 pb-2">Manajemen Data</div>
+
+                    <a href="#" @click.prevent="activeTab = 'students'; mobileMenuOpen = false" 
+                       :class="activeTab === 'students' ? 'bg-indigo-800 text-white shadow-md' : 'hover:bg-indigo-800/50 hover:text-white'"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium transition duration-150">
+                        <i class="fa-solid fa-user-graduate w-5 text-center"></i>
+                        <span>Data Siswa</span>
+                    </a>
+
+                    <a href="#" @click.prevent="activeTab = 'parents'; mobileMenuOpen = false" 
+                       :class="activeTab === 'parents' ? 'bg-indigo-800 text-white shadow-md' : 'hover:bg-indigo-800/50 hover:text-white'"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium transition duration-150">
+                        <i class="fa-solid fa-user-shield w-5 text-center"></i>
+                        <span>Data Orang Tua / Wali</span>
+                    </a>
+
+                    <a href="#" @click.prevent="activeTab = 'tutors'; mobileMenuOpen = false" 
+                       :class="activeTab === 'tutors' ? 'bg-indigo-800 text-white shadow-md' : 'hover:bg-indigo-800/50 hover:text-white'"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium transition duration-150">
+                        <i class="fa-solid fa-chalkboard-user w-5 text-center"></i>
+                        <span>Data Tentor</span>
+                    </a>
+
+                    <a href="#" @click.prevent="activeTab = 'admins'; mobileMenuOpen = false" 
+                       :class="activeTab === 'admins' ? 'bg-indigo-800 text-white shadow-md' : 'hover:bg-indigo-800/50 hover:text-white'"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium transition duration-150">
+                        <i class="fa-solid fa-user-gear w-5 text-center"></i>
+                        <span>Data Administrator</span>
+                    </a>
+
+                    <div class="pt-4 text-xs font-semibold text-indigo-400 uppercase px-3 pb-2">Akademik & Keuangan</div>
+
+                    <a href="#" @click.prevent="activeTab = 'schedules'; mobileMenuOpen = false" 
+                       :class="activeTab === 'schedules' ? 'bg-indigo-800 text-white shadow-md' : 'hover:bg-indigo-800/50 hover:text-white'"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium transition duration-150">
+                        <i class="fa-solid fa-calendar-days w-5 text-center"></i>
+                        <span>Jadwal Belajar</span>
+                    </a>
+
+                    <a href="#" @click.prevent="activeTab = 'student_attendance'; mobileMenuOpen = false" 
+                       :class="activeTab === 'student_attendance' ? 'bg-indigo-800 text-white shadow-md' : 'hover:bg-indigo-800/50 hover:text-white'"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium transition duration-150">
+                        <i class="fa-solid fa-clipboard-user w-5 text-center"></i>
+                        <span>Absensi Siswa</span>
+                    </a>
+
+                    <a href="#" @click.prevent="activeTab = 'tutor_fee'; mobileMenuOpen = false" 
+                       :class="activeTab === 'tutor_fee' ? 'bg-indigo-800 text-white shadow-md' : 'hover:bg-indigo-800/50 hover:text-white'"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium transition duration-150">
+                        <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
+                        <span>Absensi & Fee Tentor</span>
+                    </a>
+
+                    <a href="#" @click.prevent="activeTab = 'invoices'; mobileMenuOpen = false" 
+                       :class="activeTab === 'invoices' ? 'bg-indigo-800 text-white shadow-md' : 'hover:bg-indigo-800/50 hover:text-white'"
+                       class="flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium transition duration-150">
+                        <i class="fa-solid fa-receipt w-5 text-center"></i>
+                        <span>Invoice & SPP</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Footer Sidebar -->
+            <div class="p-4 border-t border-indigo-800/60 bg-indigo-950/40 text-xs text-indigo-300 flex items-center justify-between">
+                <div>
+                    <p class="font-semibold text-white">Mbah Amat v2.5</p>
+                    <p>© 2026 Professional Bimbel</p>
+                </div>
+                <button @click="resetDataToDefault()" title="Reset Data Default" class="text-indigo-300 hover:text-white p-2 rounded-lg hover:bg-indigo-800/50 transition">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+            
+            <!-- Top Navbar Desktop -->
+            <header class="bg-white border-b border-slate-200 hidden md:flex items-center justify-between px-8 py-4 shadow-sm">
+                <div class="flex items-center space-x-4">
+                    <h2 class="text-xl font-bold text-slate-800 capitalize" x-text="getTabTitle()">Dashboard</h2>
+                    <span class="bg-indigo-50 text-indigo-600 text-xs font-semibold px-2.5 py-1 rounded-full border border-indigo-100" x-text="getCurrentDateFormatted()"></span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-3 pl-4 border-l border-slate-200">
+                        <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold shadow-md">
+                            MA
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-800">Admin Mbah Amat</p>
+                            <p class="text-xs text-slate-500">Super Administrator</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Notification Toast -->
+            <div x-show="notification.show" x-transition.opacity 
+                 class="fixed top-5 right-5 z-50 px-4 py-3 rounded-xl shadow-xl text-white font-medium flex items-center space-x-3"
+                 :class="notification.type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'">
+                <i :class="notification.type === 'success' ? 'fa-solid fa-circle-check text-lg' : 'fa-solid fa-circle-exclamation text-lg'"></i>
+                <span x-text="notification.message"></span>
+            </div>
+
+            <!-- Content Area -->
+            <div class="p-6 md:p-8 space-y-6">
+
+                <!-- ================= 1. DASHBOARD MODULE ================= -->
+                <div x-show="activeTab === 'dashboard'" x-cloak class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Stat 1 -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                            <div class="w-14 h-14 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl font-bold shadow-inner">
+                                <i class="fa-solid fa-user-graduate"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-500">Total Siswa Aktif</p>
+                                <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="students.filter(s => s.status === 'Aktif').length">0</h3>
+                                <p class="text-xs text-emerald-600 font-semibold mt-1"><i class="fa-solid fa-arrow-up"></i> +4 siswa baru bulan ini</p>
+                            </div>
+                        </div>
+                        <!-- Stat 2 -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                            <div class="w-14 h-14 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl font-bold shadow-inner">
+                                <i class="fa-solid fa-chalkboard-user"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-500">Total Tentor</p>
+                                <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="tutors.filter(t => t.status === 'Aktif').length">0</h3>
+                                <p class="text-xs text-blue-600 font-semibold mt-1">Pengajar Profesional</p>
+                            </div>
+                        </div>
+                        <!-- Stat 3 -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                            <div class="w-14 h-14 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl font-bold shadow-inner">
+                                <i class="fa-solid fa-clipboard-check"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-500">Kehadiran Hari Ini</p>
+                                <h3 class="text-2xl font-bold text-slate-800 mt-1" x-text="studentAttendances.filter(a => a.date === getTodayDate() && a.status === 'Hadir').length">0</h3>
+                                <p class="text-xs text-slate-500 mt-1">Siswa Terdata</p>
+                            </div>
+                        </div>
+                        <!-- Stat 4 -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                            <div class="w-14 h-14 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl font-bold shadow-inner">
+                                <i class="fa-solid fa-wallet"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-500">Pendapatan SPP (Bulan Ini)</p>
+                                <h3 class="text-xl font-bold text-slate-800 mt-1" x-text="formatRupiah(getTotalSPPCollected())">Rp 0</h3>
+                                <p class="text-xs text-emerald-600 font-semibold mt-1">Terkumpul</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activities & Today Schedules -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Jadwal Hari Ini -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-slate-800 text-lg">Jadwal Sesi Bimbel Hari Ini</h3>
+                                <button @click="activeTab = 'schedules'" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">Lihat Semua</button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase">
+                                            <th class="py-3 px-4">Jam</th>
+                                            <th class="py-3 px-4">Mata Pelajaran</th>
+                                            <th class="py-3 px-4">Siswa</th>
+                                            <th class="py-3 px-4">Tentor</th>
+                                            <th class="py-3 px-4">Ruangan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 text-sm">
+                                        <template x-for="sch in schedules.filter(s => s.day === getTodayDayName())" :key="sch.id">
+                                            <tr>
+                                                <td class="py-3 px-4 font-semibold text-indigo-600" x-text="sch.time"></td>
+                                                <td class="py-3 px-4 font-medium text-slate-800" x-text="sch.subject"></td>
+                                                <td class="py-3 px-4 text-slate-600" x-text="sch.studentName"></td>
+                                                <td class="py-3 px-4 text-slate-600" x-text="sch.tutorName"></td>
+                                                <td class="py-3 px-4">
+                                                    <span class="bg-slate-100 text-slate-700 text-xs px-2.5 py-1 rounded-full font-medium" x-text="sch.room"></span>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="schedules.filter(s => s.day === getTodayDayName()).length === 0">
+                                            <tr>
+                                                <td colspan="5" class="py-6 text-center text-slate-400">Tidak ada jadwal bimbingan untuk hari ini.</td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Quick Info / Announcements -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg mb-4">Pengumuman & Info Cepat</h3>
+                                <div class="space-y-4">
+                                    <div class="p-4 bg-indigo-50 border border-indigo-100 rounded-xl">
+                                        <div class="flex items-center space-x-2 text-indigo-700 font-semibold text-sm mb-1">
+                                            <i class="fa-solid fa-bullhorn"></i>
+                                            <span>Evaluasi Bulanan Tentor</span>
+                                        </div>
+                                        <p class="text-xs text-indigo-900 leading-relaxed">Pengisian absensi dan rekap fee tentor paling lambat tanggal 28 setiap bulannya.</p>
+                                    </div>
+                                    <div class="p-4 bg-amber-50 border border-amber-100 rounded-xl">
+                                        <div class="flex items-center space-x-2 text-amber-700 font-semibold text-sm mb-1">
+                                            <i class="fa-solid fa-triangle-exclamation"></i>
+                                            <span>SPP Jatuh Tempo</span>
+                                        </div>
+                                        <p class="text-xs text-amber-900 leading-relaxed">Harap ingatkan siswa yang memiliki tagihan SPP status Belum Lunas.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+                                <button @click="activeTab = 'students'; openStudentModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition shadow-md">
+                                    <i class="fa-solid fa-plus mr-2"></i> Tambah Siswa Baru
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= 2. STUDENTS MANAGEMENT ================= -->
+                <div x-show="activeTab === 'students'" x-cloak class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800">Manajemen Data Siswa</h3>
+                                <p class="text-xs text-slate-500">Kelola informasi data siswa aktif dan alumni bimbel.</p>
+                            </div>
+                            <button @click="openStudentModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center space-x-2">
+                                <i class="fa-solid fa-user-plus"></i>
+                                <span>Tambah Siswa</span>
+                            </button>
+                        </div>
+
+                        <!-- Filters & Search -->
+                        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                            <div class="relative flex-1">
+                                <i class="fa-solid fa-search absolute left-3.5 top-3 text-slate-400"></i>
+                                <input type="text" x-model="studentSearch" placeholder="Cari nama siswa atau sekolah..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <select x-model="studentFilterLevel" class="py-2 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                                <option value="">Semua Jenjang</option>
+                                <option value="SD">SD</option>
+                                <option value="SMP">SMP</option>
+                                <option value="SMA">SMA</option>
+                            </select>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase">
+                                        <th class="py-3 px-4">Nama Siswa</th>
+                                        <th class="py-3 px-4">Jenjang / Kelas</th>
+                                        <th class="py-3 px-4">Asal Sekolah</th>
+                                        <th class="py-3 px-4">Kontak</th>
+                                        <th class="py-3 px-4">Status</th>
+                                        <th class="py-3 px-4 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                    <template x-for="student in filteredStudents" :key="student.id">
+                                        <tr>
+                                            <td class="py-3 px-4 font-semibold text-slate-800" x-text="student.name"></td>
+                                            <td class="py-3 px-4">
+                                                <span class="bg-indigo-50 text-indigo-700 font-medium px-2.5 py-1 rounded-full text-xs" x-text="student.level + ' - ' + student.grade"></span>
+                                            </td>
+                                            <td class="py-3 px-4 text-slate-600" x-text="student.school"></td>
+                                            <td class="py-3 px-4 text-slate-600" x-text="student.phone"></td>
+                                            <td class="py-3 px-4">
+                                                <span :class="student.status === 'Aktif' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'" class="px-2.5 py-1 rounded-full text-xs font-semibold" x-text="student.status"></span>
+                                            </td>
+                                            <td class="py-3 px-4 text-center space-x-2">
+                                                <button @click="editStudent(student)" class="text-indigo-600 hover:text-indigo-800 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                <button @click="deleteStudent(student.id)" class="text-rose-600 hover:text-rose-800 p-1.5"><i class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= 3. PARENT MANAGEMENT ================= -->
+                <div x-show="activeTab === 'parents'" x-cloak class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800">Manajemen Data Orang Tua / Wali</h3>
+                                <p class="text-xs text-slate-500">Hubungan data wali dengan siswa bimbingan.</p>
+                            </div>
+                            <button @click="openParentModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center space-x-2">
+                                <i class="fa-solid fa-user-shield"></i>
+                                <span>Tambah Wali</span>
+                            </button>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="relative pt-2">
+                            <i class="fa-solid fa-search absolute left-3.5 top-5 text-slate-400"></i>
+                            <input type="text" x-model="parentSearch" placeholder="Cari nama wali atau siswa terkait..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase">
+                                        <th class="py-3 px-4">Nama Wali</th>
+                                        <th class="py-3 px-4">Siswa Terkait</th>
+                                        <th class="py-3 px-4">Hubungan</th>
+                                        <th class="py-3 px-4">No. Telepon</th>
+                                        <th class="py-3 px-4">Email / Alamat</th>
+                                        <th class="py-3 px-4 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                    <template x-for="parent in filteredParents" :key="parent.id">
+                                        <tr>
+                                            <td class="py-3 px-4 font-semibold text-slate-800" x-text="parent.name"></td>
+                                            <td class="py-3 px-4 font-medium text-indigo-600" x-text="parent.studentName"></td>
+                                            <td class="py-3 px-4 text-slate-600" x-text="parent.relation"></td>
+                                            <td class="py-3 px-4 text-slate-600" x-text="parent.phone"></td>
+                                            <td class="py-3 px-4 text-slate-500">
+                                                <div x-text="parent.email"></div>
+                                                <div class="text-xs text-slate-400" x-text="parent.address"></div>
+                                            </td>
+                                            <td class="py-3 px-4 text-center space-x-2">
+                                                <button @click="editParent(parent)" class="text-indigo-600 hover:text-indigo-800 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                <button @click="deleteParent(parent.id)" class="text-rose-600 hover:text-rose-800 p-1.5"><i class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= 4. TUTOR MANAGEMENT ================= -->
+                <div x-show="activeTab === 'tutors'" x-cloak class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800">Manajemen Data Tentor (Pengajar)</h3>
+                                <p class="text-xs text-slate-500">Kelola spesialisasi, kontak, dan rekening fee tentor.</p>
+                            </div>
+                            <button @click="openTutorModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center space-x-2">
+                                <i class="fa-solid fa-chalkboard-user"></i>
+                                <span>Tambah Tentor</span>
+                            </button>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto pt-2">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase">
+                                        <th class="py-3 px-4">Nama Tentor</th>
+                                        <th class="py-3 px-4">Spesialisasi Mapel</th>
+                                        <th class="py-3 px-4">Kontak</th>
+                                        <th class="py-3 px-4">Rekening Bank (Fee)</th>
+                                        <th class="py-3 px-4">Status</th>
+                                        <th class="py-3 px-4 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                    <template x-for="tutor in tutors" :key="tutor.id">
+                                        <tr>
+                                            <td class="py-3 px-4 font-semibold text-slate-800" x-text="tutor.name"></td>
+                                            <td class="py-3 px-4">
+                                                <span class="bg-blue-50 text-blue-700 font-medium px-2.5 py-1 rounded-full text-xs" x-text="tutor.specialization"></span>
+                                            </td>
+                                            <td class="py-3 px-4 text-slate-600" x-text="tutor.phone"></td>
+                                            <td class="py-3 px-4 text-slate-600 font-mono text-xs" x-text="tutor.bankAccount"></td>
+                                            <td class="py-3 px-4">
+                                                <span :class="tutor.status === 'Aktif' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'" class="px-2.5 py-1 rounded-full text-xs font-semibold" x-text="tutor.status"></span>
+                                            </td>
+                                            <td class="py-3 px-4 text-center space-x-2">
+                                                <button @click="editTutor(tutor)" class="text-indigo-600 hover:text-indigo-800 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                <button @click="deleteTutor(tutor.id)" class="text-rose-600 hover:text-rose-800 p-1.5"><i class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= 5. ADMINISTRATOR MANAGEMENT ================= -->
+                <div x-show="activeTab === 'admins'" x-cloak class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800">Manajemen Data Administrator</h3>
+                                <p class="text-xs text-slate-500">Kelola akun staf dan hak akses pengelola sistem.</p>
+                            </div>
+                            <button @click="openAdminModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center space-x-2">
+                                <i class="fa-solid fa-user-gear"></i>
+                                <span>Tambah Admin</span>
+                            </button>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto pt-2">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase">
+                                        <th class="py-3 px-4">Nama Admin</th>
+                                        <th class="py-3 px-4">Username</th>
+                                        <th class="py-3 px-4">Hak Akses (Role)</th>
+                                        <th class="py-3 px-4">Kontak</th>
+                                        <th class="py-3 px-4 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                    <template x-for="admin in admins" :key="admin.id">
+                                        <tr>
+                                            <td class="py-3 px-4 font-semibold text-slate-800" x-text="admin.name"></td>
+                                            <td class="py-3 px-4 font-mono text-xs text-indigo-600" x-text="admin.username"></td>
+                                            <td class="py-3 px-4">
+                                                <span class="bg-indigo-50 text-indigo-700 font-semibold px-2.5 py-1 rounded-full text-xs" x-text="admin.role"></span>
+                                            </td>
+                                            <td class="py-3 px-4 text-slate-600" x-text="admin.phone"></td>
+                                            <td class="py-3 px-4 text-center space-x-2">
+                                                <button @click="editAdmin(admin)" class="text-indigo-600 hover:text-indigo-800 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                <button @click="deleteAdmin(admin.id)" class="text-rose-600 hover:text-rose-800 p-1.5"><i class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= 6. ATTENDANCE & TUTOR FEE MANAGEMENT ================= -->
+                <div x-show="activeTab === 'tutor_fee'" x-cloak class="space-y-6">
+                    <!-- Ketentuan Fee & Absensi Tentor -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Ketentuan Fee (Card) -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-bold text-slate-800 text-lg">Ketentuan Tuition Fee</h3>
+                                <button @click="openFeeRuleModal()" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">+ Atur Fee</button>
+                            </div>
+                            <p class="text-xs text-slate-500">Tarif fee per jam mengajar berdasarkan jenjang pendidikan.</p>
+                            <div class="space-y-3 pt-2">
+                                <template x-for="rule in feeRules" :key="rule.id">
+                                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                                        <div>
+                                            <p class="font-semibold text-sm text-slate-800" x-text="rule.level"></p>
+                                            <p class="text-xs text-slate-500" x-text="rule.description"></p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-bold text-indigo-600 text-sm" x-text="formatRupiah(rule.feePerHour) + '/jam'"></p>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Absensi & Kalkulasi Fee Tentor -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2 space-y-4">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-lg">Absensi & Kalkulasi Fee Tentor</h3>
+                                    <p class="text-xs text-slate-500">Rekap jam mengajar dan hitung fee otomatis.</p>
+                                </div>
+                                <button @click="openTutorAttendanceModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center space-x-2">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>Catat Mengajar</span>
+                                </button>
+                            </div>
+
+                            <div class="overflow-x-auto pt-2">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase">
+                                            <th class="py-3 px-4">Tanggal / Tentor</th>
+                                            <th class="py-3 px-4">Mapel / Jenjang</th>
+                                            <th class="py-3 px-4">Jam Mengajar</th>
+                                            <th class="py-3 px-4">Total Fee Kalkulasi</th>
+                                            <th class="py-3 px-4">Status Bayar</th>
+                                            <th class="py-3 px-4 text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 text-sm">
+                                        <template x-for="att in tutorAttendances" :key="att.id">
+                                            <tr>
+                                                <td class="py-3 px-4">
+                                                    <div class="font-semibold text-slate-800" x-text="att.tutorName"></div>
+                                                    <div class="text-xs text-slate-400" x-text="att.date"></div>
+                                                </td>
+                                                <td class="py-3 px-4">
+                                                    <div class="font-medium text-slate-700" x-text="att.subject"></div>
+                                                    <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded" x-text="att.level"></span>
+                                                </td>
+                                                <td class="py-3 px-4 font-semibold text-slate-800" x-text="att.hours + ' Jam'"></td>
+                                                <td class="py-3 px-4 font-bold text-emerald-600" x-text="formatRupiah(calculateTutorFee(att.level, att.hours))"></td>
+                                                <td class="py-3 px-4">
+                                                    <span :class="att.paymentStatus === 'Lunas' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'" class="px-2.5 py-1 rounded-full text-xs font-semibold" x-text="att.paymentStatus"></span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center space-x-2">
+                                                    <button @click="toggleTutorPaymentStatus(att.id)" class="text-indigo-600 hover:text-indigo-800 text-xs font-semibold px-2 py-1 bg-indigo-50 rounded-lg">Ubah Status</button>
+                                                    <button @click="deleteTutorAttendance(att.id)" class="text-rose-600 hover:text-rose-800 p-1"><i class="fa-solid fa-trash"></i></button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= 7. STUDENT ATTENDANCE ================= -->
+                <div x-show="activeTab === 'student_attendance'" x-cloak class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800">Absensi Kehadiran Siswa</h3>
+                                <p class="text-xs text-slate-500">Catat kehadiran harian/sesi bimbingan siswa (Hadir, Izin, Alpha, Sakit).</p>
+                            </div>
+                            <button @click="openStudentAttendanceModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center space-x-2">
+                                <i class="fa-solid fa-clipboard-user"></i>
+                                <span>Catat Absen Siswa</span>
+                            </button>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto pt-2">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase">
+                                        <th class="py-3 px-4">Tanggal</th>
+                                        <th class="py-3 px-4">Nama Siswa</th>
+                                        <th class="py-3 px-4">Sesi / Mata Pelajaran</th>
+                                        <th class="py-3 px-4">Status Kehadiran</th>
+                                        <th class="py-3 px-4">Keterangan</th>
+                                        <th class="py-3 px-4 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                    <template x-for="att in studentAttendances" :key="att.id">
+                                        <tr>
+                                            <td class="py-3 px-4 text-slate-600 font-medium" x-text="att.date"></td>
+                                            <td class="py-3 px-4 font-semibold text-slate-800" x-text="att.studentName"></td>
+                                            <td class="py-3 px-4 text-slate-600" x-text="att.sessionTitle"></td>
+                                            <td class="py-3 px-4">
+                                                <span :class="{
+                                                    'bg-emerald-50 text-emerald-700': att.status === 'Hadir',
+                                                    'bg-blue-50 text-blue-700': att.status === 'Izin',
+                                                    'bg-amber-50 text-amber-700': att.status === 'Sakit',
+                                                    'bg-rose-50 text-rose-700': att.status === 'Alpha'
+                                                }" class="px-2.5 py-1 rounded-full text-xs font-semibold" x-text="att.status"></span>
+                                            </td>
+                                            <td class="py-3 px-4 text-slate-500 text-xs" x-text="att.notes || '-'"></td>
+                                            <td class="py-3 px-4 text-center">
+                                                <button @click="deleteStudentAttendance(att.id)" class="text-rose-600 hover:text-rose-800 p-1"><i class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= 8. INVOICES & SPP MANAGEMENT ================= -->
+                <div x-show="activeTab === 'invoices'" x-cloak class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800">Manajemen Invoice & Pembayaran SPP</h3>
+                                <p class="text-xs text-slate-500">Kelola tagihan bulanan siswa lengkap dengan diskon dan riwayat.</p>
+                            </div>
+                            <button @click="openInvoiceModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center space-x-2">
+                                <i class="fa-solid fa-receipt"></i>
+                                <span>Buat Invoice Baru</span>
+                            </button>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto pt-2">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase">
+                                        <th class="py-3 px-4">No. Invoice & Bulan</th>
+                                        <th class="py-3 px-4">Nama Siswa</th>
+                                        <th class="py-3 px-4">Nominal SPP</th>
+                                        <th class="py-3 px-4">Diskon</th>
+                                        <th class="py-3 px-4">Total Tagihan</th>
+                                        <th class="py-3 px-4">Status Pembayaran</th>
+                                        <th class="py-3 px-4 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                    <template x-for="inv in invoices" :key="inv.id">
+                                        <tr>
+                                            <td class="py-3 px-4">
+                                                <div class="font-mono text-xs font-bold text-indigo-600" x-text="inv.invoiceNo"></div>
+                                                <div class="text-xs text-slate-400" x-text="inv.month"></div>
+                                            </td>
+                                            <td class="py-3 px-4 font-semibold text-slate-800" x-text="inv.studentName"></td>
+                                            <td class="py-3 px-4 text-slate-600" x-text="formatRupiah(inv.amount)"></td>
+                                            <td class="py-3 px-4 text-slate-500" x-text="formatRupiah(inv.discount)"></td>
+                                            <td class="py-3 px-4 font-bold text-slate-800" x-text="formatRupiah(inv.amount - inv.discount)"></td>
+                                            <td class="py-3 px-4">
+                                                <span :class="{
+                                                    'bg-emerald-50 text-emerald-700': inv.status === 'Lunas',
+                                                    'bg-amber-50 text-amber-700': inv.status === 'Menunggu Verifikasi',
+                                                    'bg-rose-50 text-rose-700': inv.status === 'Belum Lunas'
+                                                }" class="px-2.5 py-1 rounded-full text-xs font-semibold" x-text="inv.status"></span>
+                                            </td>
+                                            <td class="py-3 px-4 text-center space-x-2">
+                                                <button @click="toggleInvoiceStatus(inv.id)" class="text-indigo-600 hover:text-indigo-800 text-xs font-semibold px-2.5 py-1 bg-indigo-50 rounded-lg">Ubah Status</button>
+                                                <button @click="deleteInvoice(inv.id)" class="text-rose-600 hover:text-rose-800 p-1"><i class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= 9. SCHEDULE MANAGEMENT ================= -->
+                <div x-show="activeTab === 'schedules'" x-cloak class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800">Manajemen Jadwal Belajar & Mengajar</h3>
+                                <p class="text-xs text-slate-500">Jadwal bimbingan siswa dan penugasan tentor bimbel.</p>
+                            </div>
+                            <button @click="openScheduleModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center space-x-2">
+                                <i class="fa-solid fa-calendar-plus"></i>
+                                <span>Tambah Jadwal</span>
+                            </button>
+                        </div>
+
+                        <!-- Filter Hari -->
+                        <div class="flex gap-2 overflow-x-auto pb-2">
+                            <template x-for="day in ['Semua', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']">
+                                <button @click="scheduleFilterDay = (day === 'Semua' ? '' : day)" 
+                                        :class="scheduleFilterDay === (day === 'Semua' ? '' : day) ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+                                        class="px-4 py-2 rounded-xl text-xs font-semibold transition whitespace-nowrap" x-text="day">
+                                </button>
+                            </template>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto pt-2">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-100 text-xs font-semibold text-slate-400 uppercase">
+                                        <th class="py-3 px-4">Hari / Jam</th>
+                                        <th class="py-3 px-4">Mata Pelajaran</th>
+                                        <th class="py-3 px-4">Nama Siswa</th>
+                                        <th class="py-3 px-4">Tentor Bertugas</th>
+                                        <th class="py-3 px-4">Ruangan</th>
+                                        <th class="py-3 px-4 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                    <template x-for="sch in filteredSchedules" :key="sch.id">
+                                        <tr>
+                                            <td class="py-3 px-4">
+                                                <div class="font-semibold text-slate-800" x-text="sch.day"></div>
+                                                <div class="text-xs text-indigo-600 font-medium" x-text="sch.time"></div>
+                                            </td>
+                                            <td class="py-3 px-4 font-semibold text-slate-800" x-text="sch.subject"></td>
+                                            <td class="py-3 px-4 text-slate-700" x-text="sch.studentName"></td>
+                                            <td class="py-3 px-4 text-slate-700" x-text="sch.tutorName"></td>
+                                            <td class="py-3 px-4">
+                                                <span class="bg-slate-100 text-slate-700 text-xs px-2.5 py-1 rounded-full font-medium" x-text="sch.room"></span>
+                                            </td>
+                                            <td class="py-3 px-4 text-center space-x-2">
+                                                <button @click="editSchedule(sch)" class="text-indigo-600 hover:text-indigo-800 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                <button @click="deleteSchedule(sch.id)" class="text-rose-600 hover:text-rose-800 p-1.5"><i class="fa-solid fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= MODALS SECTION ================= -->
+
+    <!-- Modal Student Form -->
+    <div x-show="studentModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="font-bold text-lg text-slate-800" x-text="studentForm.id ? 'Edit Data Siswa' : 'Tambah Data Siswa Baru'"></h3>
+            <form @submit.prevent="saveStudent()" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Lengkap Siswa</label>
+                    <input type="text" x-model="studentForm.name" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Jenjang</label>
+                        <select x-model="studentForm.level" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="SD">SD</option>
+                            <option value="SMP">SMP</option>
+                            <option value="SMA">SMA</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Kelas</label>
+                        <input type="text" x-model="studentForm.grade" placeholder="Contoh: Kelas 6 / 9 / 12" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Asal Sekolah</label>
+                    <input type="text" x-model="studentForm.school" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">No. Kontak / WhatsApp</label>
+                    <input type="text" x-model="studentForm.phone" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Status Keaktifan</label>
+                    <select x-model="studentForm.status" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                        <option value="Aktif">Aktif</option>
+                        <option value="Non-Aktif">Non-Aktif</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" @click="studentModalOpen = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Parent Form -->
+    <div x-show="parentModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="font-bold text-lg text-slate-800" x-text="parentForm.id ? 'Edit Data Wali' : 'Tambah Data Wali Baru'"></h3>
+            <form @submit.prevent="saveParent()" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Orang Tua / Wali</label>
+                    <input type="text" x-model="parentForm.name" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Siswa Terkait</label>
+                    <select x-model="parentForm.studentName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                        <option value="">Pilih Siswa</option>
+                        <template x-for="s in students" :key="s.id">
+                            <option :value="s.name" x-text="s.name + ' (' + s.level + ')'"></option>
+                        </template>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Hubungan</label>
+                        <select x-model="parentForm.relation" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="Ayah Kandung">Ayah Kandung</option>
+                            <option value="Ibu Kandung">Ibu Kandung</option>
+                            <option value="Wali / Lainnya">Wali / Lainnya</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">No. Telepon</label>
+                        <input type="text" x-model="parentForm.phone" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Email</label>
+                    <input type="email" x-model="parentForm.email" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Alamat Domisili</label>
+                    <textarea x-model="parentForm.address" rows="2" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" @click="parentModalOpen = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Tutor Form -->
+    <div x-show="tutorModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="font-bold text-lg text-slate-800" x-text="tutorForm.id ? 'Edit Data Tentor' : 'Tambah Data Tentor Baru'"></h3>
+            <form @submit.prevent="saveTutor()" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Lengkap & Gelar</label>
+                    <input type="text" x-model="tutorForm.name" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Spesialisasi Mata Pelajaran</label>
+                    <input type="text" x-model="tutorForm.specialization" placeholder="Contoh: Matematika & Fisika" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">No. Telepon</label>
+                        <input type="text" x-model="tutorForm.phone" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Status</label>
+                        <select x-model="tutorForm.status" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="Aktif">Aktif</option>
+                            <option value="Cuti">Cuti</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">No. Rekening Bank (untuk Pembayaran Fee)</label>
+                    <input type="text" x-model="tutorForm.bankAccount" placeholder="BCA 1234567890 a.n Nama Tentor" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold font-mono focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" @click="tutorModalOpen = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Admin Form -->
+    <div x-show="adminModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="font-bold text-lg text-slate-800" x-text="adminForm.id ? 'Edit Data Admin' : 'Tambah Data Admin Baru'"></h3>
+            <form @submit.prevent="saveAdmin()" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Lengkap</label>
+                    <input type="text" x-model="adminForm.name" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Username Login</label>
+                        <input type="text" x-model="adminForm.username" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Hak Akses (Role)</label>
+                        <select x-model="adminForm.role" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="Super Admin">Super Admin</option>
+                            <option value="Staff Akademik">Staff Akademik</option>
+                            <option value="Staff Keuangan">Staff Keuangan</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">No. Telepon</label>
+                    <input type="text" x-model="adminForm.phone" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" @click="adminModalOpen = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Fee Rule Form -->
+    <div x-show="feeRuleModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="font-bold text-lg text-slate-800">Atur Ketentuan Fee Tentor</h3>
+            <form @submit.prevent="saveFeeRule()" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Jenjang Pendidikan</label>
+                    <input type="text" x-model="feeRuleForm.level" placeholder="Contoh: SD / SMP / SMA / UTBK" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tarif Fee per Jam (Rp)</label>
+                    <input type="number" x-model.number="feeRuleForm.feePerHour" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Keterangan / Kategori</label>
+                    <input type="text" x-model="feeRuleForm.description" placeholder="Contoh: Kelas Reguler / Privat" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" @click="feeRuleModalOpen = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md">Simpan Ketentuan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Tutor Attendance Form -->
+    <div x-show="tutorAttendanceModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="font-bold text-lg text-slate-800">Catat Mengajar & Kalkulasi Fee Tentor</h3>
+            <form @submit.prevent="saveTutorAttendance()" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tanggal</label>
+                        <input type="date" x-model="tutorAttendanceForm.date" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Tentor</label>
+                        <select x-model="tutorAttendanceForm.tutorName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="">Pilih Tentor</option>
+                            <template x-for="t in tutors" :key="t.id">
+                                <option :value="t.name" x-text="t.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Mata Pelajaran</label>
+                        <input type="text" x-model="tutorAttendanceForm.subject" placeholder="Contoh: Matematika" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Jenjang (untuk Fee)</label>
+                        <select x-model="tutorAttendanceForm.level" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="">Pilih Jenjang</option>
+                            <template x-for="r in feeRules" :key="r.id">
+                                <option :value="r.level" x-text="r.level + ' (' + formatRupiah(r.feePerHour) + '/jam)'"></option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Jumlah Jam Mengajar</label>
+                    <input type="number" step="0.5" x-model.number="tutorAttendanceForm.hours" placeholder="Contoh: 2" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" @click="tutorAttendanceModalOpen = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md">Simpan & Hitung Fee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Student Attendance Form -->
+    <div x-show="studentAttendanceModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="font-bold text-lg text-slate-800">Catat Kehadiran Siswa</h3>
+            <form @submit.prevent="saveStudentAttendance()" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tanggal</label>
+                        <input type="date" x-model="studentAttendanceForm.date" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Siswa</label>
+                        <select x-model="studentAttendanceForm.studentName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="">Pilih Siswa</option>
+                            <template x-for="s in students" :key="s.id">
+                                <option :value="s.name" x-text="s.name + ' (' + s.level + ')'"></option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Sesi / Mata Pelajaran</label>
+                    <input type="text" x-model="studentAttendanceForm.sessionTitle" placeholder="Contoh: Sesi 1 - Matematika Aljabar" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Status Kehadiran</label>
+                    <select x-model="studentAttendanceForm.status" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                        <option value="Hadir">Hadir</option>
+                        <option value="Izin">Izin</option>
+                        <option value="Sakit">Sakit</option>
+                        <option value="Alpha">Alpha</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Keterangan Tambahan</label>
+                    <input type="text" x-model="studentAttendanceForm.notes" placeholder="Opsional (misal: Datang terlambat 15 menit)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" @click="studentAttendanceModalOpen = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md">Simpan Absensi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Invoice Form -->
+    <div x-show="invoiceModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="font-bold text-lg text-slate-800">Buat Invoice SPP Bulanan</h3>
+            <form @submit.prevent="saveInvoice()" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">No. Invoice</label>
+                        <input type="text" x-model="invoiceForm.invoiceNo" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Bulan Tagihan</label>
+                        <input type="text" x-model="invoiceForm.month" placeholder="Contoh: Oktober 2026" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Siswa</label>
+                    <select x-model="invoiceForm.studentName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                        <option value="">Pilih Siswa</option>
+                        <template x-for="s in students" :key="s.id">
+                            <option :value="s.name" x-text="s.name + ' (' + s.level + ')'"></option>
+                        </template>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nominal SPP (Rp)</label>
+                        <input type="number" x-model.number="invoiceForm.amount" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Diskon (Rp)</label>
+                        <input type="number" x-model.number="invoiceForm.discount" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Status Pembayaran</label>
+                    <select x-model="invoiceForm.status" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                        <option value="Belum Lunas">Belum Lunas</option>
+                        <option value="Menunggu Verifikasi">Menunggu Verifikasi</option>
+                        <option value="Lunas">Lunas</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" @click="invoiceModalOpen = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md">Simpan Invoice</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Schedule Form -->
+    <div x-show="scheduleModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="font-bold text-lg text-slate-800" x-text="scheduleForm.id ? 'Edit Jadwal Bimbingan' : 'Tambah Jadwal Bimbingan Baru'"></h3>
+            <form @submit.prevent="saveSchedule()" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Hari</label>
+                        <select x-model="scheduleForm.day" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="Senin">Senin</option>
+                            <option value="Selasa">Selasa</option>
+                            <option value="Rabu">Rabu</option>
+                            <option value="Kamis">Kamis</option>
+                            <option value="Jumat">Jumat</option>
+                            <option value="Sabtu">Sabtu</option>
+                            <option value="Minggu">Minggu</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Jam</label>
+                        <input type="text" x-model="scheduleForm.time" placeholder="Contoh: 15:30 - 17:00" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Mata Pelajaran</label>
+                    <input type="text" x-model="scheduleForm.subject" placeholder="Contoh: Matematika Lanjutan" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Siswa</label>
+                        <select x-model="scheduleForm.studentName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="">Pilih Siswa</option>
+                            <template x-for="s in students" :key="s.id">
+                                <option :value="s.name" x-text="s.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Tentor</label>
+                        <select x-model="scheduleForm.tutorName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="">Pilih Tentor</option>
+                            <template x-for="t in tutors" :key="t.id">
+                                <option :value="t.name" x-text="t.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Ruangan / Kelas</label>
+                    <input type="text" x-model="scheduleForm.room" placeholder="Contoh: Ruang 01 / Online Zoom" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" @click="scheduleModalOpen = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md">Simpan Jadwal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= ALPINE JS CONTROLLER ================= -->
+    <script>
+        function mbahAmatApp() {
+            return {
+                activeTab: 'dashboard',
+                mobileMenuOpen: false,
+                notification: { show: false, message: '', type: 'success' },
+
+                showToast(message, type = 'success') {
+                    this.notification = { show: true, message, type };
+                    setTimeout(() => { this.notification.show = false; }, 3500);
+                },
+
+                formatRupiah(number) {
+                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
+                },
+
+                getCurrentDateFormatted() {
+                    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    return new Date().toLocaleDateString('id-ID', options);
+                },
+
+                getTodayDate() {
+                    return new Date().toISOString().split('T')[0];
+                },
+
+                getTodayDayName() {
+                    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                    return days[new Date().getDay()];
+                },
+
+                getTabTitle() {
+                    const titles = {
+                        dashboard: 'Dashboard Overview',
+                        students: 'Manajemen Data Siswa',
+                        parents: 'Manajemen Orang Tua / Wali',
+                        tutors: 'Manajemen Tentor (Pengajar)',
+                        admins: 'Manajemen Administrator',
+                        schedules: 'Jadwal Belajar & Mengajar',
+                        student_attendance: 'Absensi Kehadiran Siswa',
+                        tutor_fee: 'Absensi & Fee Tentor',
+                        invoices: 'Invoice & Pembayaran SPP'
+                    };
+                    return titles[this.activeTab] || 'Dashboard';
+                },
+
+                // LocalStorage State Data
+                students: [],
+                parents: [],
+                tutors: [],
+                admins: [],
+                feeRules: [],
+                tutorAttendances: [],
+                studentAttendances: [],
+                invoices: [],
+                schedules: [],
+
+                // Modals State
+                studentModalOpen: false,
+                studentForm: { id: null, name: '', level: 'SD', grade: '', school: '', phone: '', status: 'Aktif' },
+                studentSearch: '',
+                studentFilterLevel: '',
+
+                parentModalOpen: false,
+                parentForm: { id: null, name: '', studentName: '', relation: 'Ayah Kandung', phone: '', email: '', address: '' },
+                parentSearch: '',
+
+                tutorModalOpen: false,
+                tutorForm: { id: null, name: '', specialization: '', phone: '', status: 'Aktif', bankAccount: '' },
+
+                adminModalOpen: false,
+                adminForm: { id: null, name: '', username: '', role: 'Staff Akademik', phone: '' },
+
+                feeRuleModalOpen: false,
+                feeRuleForm: { id: null, level: '', feePerHour: 50000, description: '' },
+
+                tutorAttendanceModalOpen: false,
+                tutorAttendanceForm: { id: null, date: '', tutorName: '', subject: '', level: '', hours: 2, paymentStatus: 'Belum Dibayar' },
+
+                studentAttendanceModalOpen: false,
+                studentAttendanceForm: { id: null, date: '', studentName: '', sessionTitle: '', status: 'Hadir', notes: '' },
+
+                invoiceModalOpen: false,
+                invoiceForm: { id: null, invoiceNo: '', month: 'Oktober 2026', studentName: '', amount: 450000, discount: 0, status: 'Belum Lunas' },
+
+                scheduleModalOpen: false,
+                scheduleForm: { id: null, day: 'Senin', time: '15:30 - 17:00', subject: '', studentName: '', tutorName: '', room: 'Ruang 01' },
+                scheduleFilterDay: '',
+
+                initData() {
+                    const defaultStudents = [
+                        { id: 1, name: 'Budi Santoso', level: 'SD', grade: 'Kelas 6', school: 'SDN Menteng 01', phone: '081234567890', status: 'Aktif' },
+                        { id: 2, name: 'Siti Aminah', level: 'SMP', grade: 'Kelas 8', school: 'SMPN 12 Jakarta', phone: '081398765432', status: 'Aktif' },
+                        { id: 3, name: 'Rizky Pratama', level: 'SMA', grade: 'Kelas 12', school: 'SMAN 70 Jakarta', phone: '081512345678', status: 'Aktif' }
+                    ];
+
+                    const defaultParents = [
+                        { id: 1, name: 'Bapak Santoso', studentName: 'Budi Santoso', relation: 'Ayah Kandung', phone: '081234567891', email: 'santoso@gmail.com', address: 'Jl. Merdeka No. 10, Jakarta' },
+                        { id: 2, name: 'Ibu Fatimah', studentName: 'Siti Aminah', relation: 'Ibu Kandung', phone: '081398765433', email: 'fatimah@gmail.com', address: 'Jl. Sudirman No. 45, Jakarta' }
+                    ];
+
+                    const defaultTutors = [
+                        { id: 1, name: 'Dr. Ahmad Fauzi, M.Pd.', specialization: 'Matematika & Fisika', phone: '081811223344', status: 'Aktif', bankAccount: 'BCA 5410123456 a.n Ahmad Fauzi' },
+                        { id: 2, name: 'Dewi Lestari, S.Si.', specialization: 'Kimia & Biologi', phone: '081922334455', status: 'Aktif', bankAccount: 'Mandiri 103000556677 a.n Dewi Lestari' }
+                    ];
+
+                    const defaultAdmins = [
+                        { id: 1, name: 'Admin Utama Mbah Amat', username: 'mbahamat', role: 'Super Admin', phone: '081100001111' },
+                        { id: 2, name: 'Rini Kusuma', username: 'rini_akademik', role: 'Staff Akademik', phone: '081122223333' }
+                    ];
+
+                    const defaultFeeRules = [
+                        { id: 1, level: 'SD', feePerHour: 60000, description: 'Kelas Reguler / Privat SD' },
+                        { id: 2, level: 'SMP', feePerHour: 75000, description: 'Kelas Reguler / Privat SMP' },
+                        { id: 3, level: 'SMA', feePerHour: 100000, description: 'Kelas Reguler / Privat SMA / UTBK' }
+                    ];
+
+                    const defaultTutorAttendances = [
+                        { id: 1, date: '2026-10-10', tutorName: 'Dr. Ahmad Fauzi, M.Pd.', subject: 'Matematika', level: 'SMA', hours: 2, paymentStatus: 'Belum Dibayar' }
+                    ];
+
+                    const defaultStudentAttendances = [
+                        { id: 1, date: '2026-10-10', studentName: 'Budi Santoso', sessionTitle: 'Matematika Pecahan', status: 'Hadir', notes: 'Tepat waktu' }
+                    ];
+
+                    const defaultInvoices = [
+                        { id: 1, invoiceNo: 'INV-2026-001', month: 'Oktober 2026', studentName: 'Budi Santoso', amount: 450000, discount: 50000, status: 'Lunas' },
+                        { id: 2, invoiceNo: 'INV-2026-002', month: 'Oktober 2026', studentName: 'Siti Aminah', amount: 550000, discount: 0, status: 'Belum Lunas' }
+                    ];
+
+                    const defaultSchedules = [
+                        { id: 1, day: 'Senin', time: '15:30 - 17:00', subject: 'Matematika', studentName: 'Budi Santoso', tutorName: 'Dr. Ahmad Fauzi, M.Pd.', room: 'Ruang 01' },
+                        { id: 2, day: 'Selasa', time: '16:00 - 17:30', subject: 'Kimia', studentName: 'Siti Aminah', tutorName: 'Dewi Lestari, S.Si.', room: 'Ruang 02' }
+                    ];
+
+                    this.students = JSON.parse(localStorage.getItem('ma_students')) || defaultStudents;
+                    this.parents = JSON.parse(localStorage.getItem('ma_parents')) || defaultParents;
+                    this.tutors = JSON.parse(localStorage.getItem('ma_tutors')) || defaultTutors;
+                    this.admins = JSON.parse(localStorage.getItem('ma_admins')) || defaultAdmins;
+                    this.feeRules = JSON.parse(localStorage.getItem('ma_feeRules')) || defaultFeeRules;
+                    this.tutorAttendances = JSON.parse(localStorage.getItem('ma_tutorAttendances')) || defaultTutorAttendances;
+                    this.studentAttendances = JSON.parse(localStorage.getItem('ma_studentAttendances')) || defaultStudentAttendances;
+                    this.invoices = JSON.parse(localStorage.getItem('ma_invoices')) || defaultInvoices;
+                    this.schedules = JSON.parse(localStorage.getItem('ma_schedules')) || defaultSchedules;
+                },
+
+                persist() {
+                    localStorage.setItem('ma_students', JSON.stringify(this.students));
+                    localStorage.setItem('ma_parents', JSON.stringify(this.parents));
+                    localStorage.setItem('ma_tutors', JSON.stringify(this.tutors));
+                    localStorage.setItem('ma_admins', JSON.stringify(this.admins));
+                    localStorage.setItem('ma_feeRules', JSON.stringify(this.feeRules));
+                    localStorage.setItem('ma_tutorAttendances', JSON.stringify(this.tutorAttendances));
+                    localStorage.setItem('ma_studentAttendances', JSON.stringify(this.studentAttendances));
+                    localStorage.setItem('ma_invoices', JSON.stringify(this.invoices));
+                    localStorage.setItem('ma_schedules', JSON.stringify(this.schedules));
+                },
+
+                resetDataToDefault() {
+                    if (confirm('Reset seluruh data ke pengaturan awal?')) {
+                        localStorage.clear();
+                        location.reload();
+                    }
+                },
+
+                // Computed Filters
+                get filteredStudents() {
+                    return this.students.filter(s => {
+                        const matchSearch = s.name.toLowerCase().includes(this.studentSearch.toLowerCase()) || s.school.toLowerCase().includes(this.studentSearch.toLowerCase());
+                        const matchLevel = this.studentFilterLevel === '' || s.level === this.studentFilterLevel;
+                        return matchSearch && matchLevel;
+                    });
+                },
+
+                get filteredParents() {
+                    return this.parents.filter(p => p.name.toLowerCase().includes(this.parentSearch.toLowerCase()) || p.studentName.toLowerCase().includes(this.parentSearch.toLowerCase()));
+                },
+
+                get filteredSchedules() {
+                    if (!this.scheduleFilterDay) return this.schedules;
+                    return this.schedules.filter(s => s.day === this.scheduleFilterDay);
+                },
+
+                getTotalSPPCollected() {
+                    return this.invoices.filter(i => i.status === 'Lunas').reduce((acc, curr) => acc + (curr.amount - curr.discount), 0);
+                },
+
+                calculateTutorFee(level, hours) {
+                    const rule = this.feeRules.find(r => r.level === level);
+                    const rate = rule ? rule.feePerHour : 50000;
+                    return rate * hours;
+                },
+
+                // Student CRUD
+                openStudentModal() {
+                    this.studentForm = { id: null, name: '', level: 'SD', grade: '', school: '', phone: '', status: 'Aktif' };
+                    this.studentModalOpen = true;
+                },
+                editStudent(student) {
+                    this.studentForm = { ...student };
+                    this.studentModalOpen = true;
+                },
+                saveStudent() {
+                    if (this.studentForm.id) {
+                        const index = this.students.findIndex(s => s.id === this.studentForm.id);
+                        if (index !== -1) this.students[index] = { ...this.studentForm };
+                        this.showToast('Data siswa berhasil diperbarui!');
+                    } else {
+                        this.studentForm.id = Date.now();
+                        this.students.push({ ...this.studentForm });
+                        this.showToast('Siswa baru berhasil ditambahkan!');
+                    }
+                    this.persist();
+                    this.studentModalOpen = false;
+                },
+                deleteStudent(id) {
+                    if (confirm('Hapus data siswa ini?')) {
+                        this.students = this.students.filter(s => s.id !== id);
+                        this.persist();
+                        this.showToast('Data siswa berhasil dihapus.', 'error');
+                    }
+                },
+
+                // Parent CRUD
+                openParentModal() {
+                    this.parentForm = { id: null, name: '', studentName: '', relation: 'Ayah Kandung', phone: '', email: '', address: '' };
+                    this.parentModalOpen = true;
+                },
+                editParent(parent) {
+                    this.parentForm = { ...parent };
+                    this.parentModalOpen = true;
+                },
+                saveParent() {
+                    if (this.parentForm.id) {
+                        const index = this.parents.findIndex(p => p.id === this.parentForm.id);
+                        if (index !== -1) this.parents[index] = { ...this.parentForm };
+                        this.showToast('Data wali berhasil diperbarui!');
+                    } else {
+                        this.parentForm.id = Date.now();
+                        this.parents.push({ ...this.parentForm });
+                        this.showToast('Wali baru berhasil ditambahkan!');
+                    }
+                    this.persist();
+                    this.parentModalOpen = false;
+                },
+                deleteParent(id) {
+                    if (confirm('Hapus data wali ini?')) {
+                        this.parents = this.parents.filter(p => p.id !== id);
+                        this.persist();
+                        this.showToast('Data wali dihapus.', 'error');
+                    }
+                },
+
+                // Tutor CRUD
+                openTutorModal() {
+                    this.tutorForm = { id: null, name: '', specialization: '', phone: '', status: 'Aktif', bankAccount: '' };
+                    this.tutorModalOpen = true;
+                },
+                editTutor(tutor) {
+                    this.tutorForm = { ...tutor };
+                    this.tutorModalOpen = true;
+                },
+                saveTutor() {
+                    if (this.tutorForm.id) {
+                        const index = this.tutors.findIndex(t => t.id === this.tutorForm.id);
+                        if (index !== -1) this.tutors[index] = { ...this.tutorForm };
+                        this.showToast('Data tentor berhasil diperbarui!');
+                    } else {
+                        this.tutorForm.id = Date.now();
+                        this.tutors.push({ ...this.tutorForm });
+                        this.showToast('Tentor baru berhasil ditambahkan!');
+                    }
+                    this.persist();
+                    this.tutorModalOpen = false;
+                },
+                deleteTutor(id) {
+                    if (confirm('Hapus data tentor ini?')) {
+                        this.tutors = this.tutors.filter(t => t.id !== id);
+                        this.persist();
+                        this.showToast('Data tentor dihapus.', 'error');
+                    }
+                },
+
+                // Admin CRUD
+                openAdminModal() {
+                    this.adminForm = { id: null, name: '', username: '', role: 'Staff Akademik', phone: '' };
+                    this.adminModalOpen = true;
+                },
+                editAdmin(admin) {
+                    this.adminForm = { ...admin };
+                    this.adminModalOpen = true;
+                },
+                saveAdmin() {
+                    if (this.adminForm.id) {
+                        const index = this.admins.findIndex(a => a.id === this.adminForm.id);
+                        if (index !== -1) this.admins[index] = { ...this.adminForm };
+                        this.showToast('Data admin diperbarui!');
+                    } else {
+                        this.adminForm.id = Date.now();
+                        this.admins.push({ ...this.adminForm });
+                        this.showToast('Admin baru ditambahkan!');
+                    }
+                    this.persist();
+                    this.adminModalOpen = false;
+                },
+                deleteAdmin(id) {
+                    if (confirm('Hapus admin ini?')) {
+                        this.admins = this.admins.filter(a => a.id !== id);
+                        this.persist();
+                        this.showToast('Data admin dihapus.', 'error');
+                    }
+                },
+
+                // Fee Rule
+                openFeeRuleModal() {
+                    this.feeRuleForm = { id: null, level: '', feePerHour: 50000, description: '' };
+                    this.feeRuleModalOpen = true;
+                },
+                saveFeeRule() {
+                    this.feeRuleForm.id = Date.now();
+                    this.feeRules.push({ ...this.feeRuleForm });
+                    this.persist();
+                    this.feeRuleModalOpen = false;
+                    this.showToast('Ketentuan fee berhasil disimpan!');
+                },
+
+                // Tutor Attendance & Fee Calculation
+                openTutorAttendanceModal() {
+                    this.tutorAttendanceForm = { id: null, date: this.getTodayDate(), tutorName: '', subject: '', level: '', hours: 2, paymentStatus: 'Belum Dibayar' };
+                    this.tutorAttendanceModalOpen = true;
+                },
+                saveTutorAttendance() {
+                    this.tutorAttendanceForm.id = Date.now();
+                    this.tutorAttendances.push({ ...this.tutorAttendanceForm });
+                    this.persist();
+                    this.tutorAttendanceModalOpen = false;
+                    this.showToast('Absensi tentor dan kalkulasi fee berhasil dicatat!');
+                },
+                toggleTutorPaymentStatus(id) {
+                    const att = this.tutorAttendances.find(a => a.id === id);
+                    if (att) {
+                        att.paymentStatus = att.paymentStatus === 'Lunas' ? 'Belum Dibayar' : 'Lunas';
+                        this.persist();
+                        this.showToast('Status pembayaran fee diperbarui!');
+                    }
+                },
+                deleteTutorAttendance(id) {
+                    if (confirm('Hapus data absensi tentor ini?')) {
+                        this.tutorAttendances = this.tutorAttendances.filter(a => a.id !== id);
+                        this.persist();
+                        this.showToast('Data absensi tentor dihapus.', 'error');
+                    }
+                },
+
+                // Student Attendance
+                openStudentAttendanceModal() {
+                    this.studentAttendanceForm = { id: null, date: this.getTodayDate(), studentName: '', sessionTitle: '', status: 'Hadir', notes: '' };
+                    this.studentAttendanceModalOpen = true;
+                },
+                saveStudentAttendance() {
+                    this.studentAttendanceForm.id = Date.now();
+                    this.studentAttendances.push({ ...this.studentAttendanceForm });
+                    this.persist();
+                    this.studentAttendanceModalOpen = false;
+                    this.showToast('Absensi kehadiran siswa berhasil dicatat!');
+                },
+                deleteStudentAttendance(id) {
+                    if (confirm('Hapus absensi ini?')) {
+                        this.studentAttendances = this.studentAttendances.filter(a => a.id !== id);
+                        this.persist();
+                        this.showToast('Absensi siswa dihapus.', 'error');
+                    }
+                },
+
+                // Invoices SPP
+                openInvoiceModal() {
+                    this.invoiceForm = { id: null, invoiceNo: 'INV-2026-' + Math.floor(100 + Math.random() * 900), month: 'Oktober 2026', studentName: '', amount: 450000, discount: 0, status: 'Belum Lunas' };
+                    this.invoiceModalOpen = true;
+                },
+                saveInvoice() {
+                    this.invoiceForm.id = Date.now();
+                    this.invoices.push({ ...this.invoiceForm });
+                    this.persist();
+                    this.invoiceModalOpen = false;
+                    this.showToast('Invoice SPP berhasil dibuat!');
+                },
+                toggleInvoiceStatus(id) {
+                    const inv = this.invoices.find(i => i.id === id);
+                    if (inv) {
+                        if (inv.status === 'Belum Lunas') inv.status = 'Menunggu Verifikasi';
+                        else if (inv.status === 'Menunggu Verifikasi') inv.status = 'Lunas';
+                        else inv.status = 'Belum Lunas';
+                        this.persist();
+                        this.showToast('Status invoice berhasil diubah!');
+                    }
+                },
+                deleteInvoice(id) {
+                    if (confirm('Hapus invoice ini?')) {
+                        this.invoices = this.invoices.filter(i => i.id !== id);
+                        this.persist();
+                        this.showToast('Invoice dihapus.', 'error');
+                    }
+                },
+
+                // Schedules
+                openScheduleModal() {
+                    this.scheduleForm = { id: null, day: 'Senin', time: '15:30 - 17:00', subject: '', studentName: '', tutorName: '', room: 'Ruang 01' };
+                    this.scheduleModalOpen = true;
+                },
+                editSchedule(sch) {
+                    this.scheduleForm = { ...sch };
+                    this.scheduleModalOpen = true;
+                },
+                saveSchedule() {
+                    if (this.scheduleForm.id) {
+                        const index = this.schedules.findIndex(s => s.id === this.scheduleForm.id);
+                        if (index !== -1) this.schedules[index] = { ...this.scheduleForm };
+                        this.showToast('Jadwal berhasil diperbarui!');
+                    } else {
+                        this.scheduleForm.id = Date.now();
+                        this.schedules.push({ ...this.scheduleForm });
+                        this.showToast('Jadwal baru berhasil ditambahkan!');
+                    }
+                    this.persist();
+                    this.scheduleModalOpen = false;
+                },
+                deleteSchedule(id) {
+                    if (confirm('Hapus jadwal ini?')) {
+                        this.schedules = this.schedules.filter(s => s.id !== id);
+                        this.persist();
+                        this.showToast('Jadwal dihapus.', 'error');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
